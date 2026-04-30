@@ -64,7 +64,7 @@ sources/7 = SubResource("TileSetAtlasSource_1w6v2")
 [node name="Grid" type="Node2D" unique_id=1652481574]
 
 [node name="Camera2D" type="Camera2D" parent="." unique_id=970525613]
-zoom = Vector2(4, 4)
+zoom = Vector2(1.8, 1.8)
 
 [node name="TextureRect" type="TextureRect" parent="." unique_id=1876404261]
 offset_left = -1282.0
