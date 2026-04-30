@@ -1,0 +1,84 @@
+[gd_scene format=3 uid="uid://b7i68khvmaf6k"]
+
+[ext_resource type="Texture2D" uid="uid://bcyecu2ppqjso" path="res://Tetris_Asset_Pack/background/background.png" id="1_8gbba"]
+[ext_resource type="Texture2D" uid="uid://w3oer7mm1oud" path="res://Tetris_Asset_Pack/blocks/cutBlue.png" id="3_d1ilt"]
+[ext_resource type="Texture2D" uid="uid://deq1s8kmedtso" path="res://Tetris_Asset_Pack/blocks/cyanCut.png" id="4_6iyac"]
+[ext_resource type="Texture2D" uid="uid://c7oo2gm0bv7wc" path="res://Tetris_Asset_Pack/UI/grid/grid.png" id="4_jjvhh"]
+[ext_resource type="Texture2D" uid="uid://dy4cv3dsbvupt" path="res://Tetris_Asset_Pack/blocks/greenCut.png" id="5_fdnlq"]
+[ext_resource type="Texture2D" uid="uid://cerjpq541atwu" path="res://Tetris_Asset_Pack/blocks/pinkCut.png" id="6_jkdf5"]
+[ext_resource type="Texture2D" uid="uid://b1n4prkl418tl" path="res://Tetris_Asset_Pack/blocks/purpleCut.png" id="7_wsu2k"]
+[ext_resource type="Texture2D" uid="uid://b68gcwkc7fb05" path="res://Tetris_Asset_Pack/blocks/redCut.png" id="8_k12tt"]
+[ext_resource type="Texture2D" uid="uid://bgx100w1xp761" path="res://Tetris_Asset_Pack/blocks/yellowCut.png" id="9_h1bgf"]
+[ext_resource type="Texture2D" uid="uid://b5vumpjkxp2rd" path="res://Tetris_Asset_Pack/UI/tilemap/tilemap_border.png" id="10_b3802"]
+[ext_resource type="Script" uid="uid://cc1sostm7n1ye" path="res://Scripts/tile_map_layer.gd" id="11_fevyy"]
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_hibaj"]
+texture = ExtResource("3_d1ilt")
+0:0/0 = 0
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_pdsj5"]
+texture = ExtResource("4_6iyac")
+0:0/0 = 0
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_ee4r6"]
+texture = ExtResource("5_fdnlq")
+0:0/0 = 0
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_gt3je"]
+texture = ExtResource("6_jkdf5")
+0:0/0 = 0
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_3pmx8"]
+texture = ExtResource("7_wsu2k")
+0:0/0 = 0
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_u50mg"]
+texture = ExtResource("8_k12tt")
+0:0/0 = 0
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_cbgmd"]
+texture = ExtResource("9_h1bgf")
+0:0/0 = 0
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_1w6v2"]
+texture = ExtResource("10_b3802")
+0:0/0 = 0
+1:0/0 = 0
+2:0/0 = 0
+3:0/0 = 0
+4:0/0 = 0
+0:1/0 = 0
+1:1/0 = 0
+4:1/0 = 0
+
+[sub_resource type="TileSet" id="TileSet_ueoa1"]
+sources/0 = SubResource("TileSetAtlasSource_hibaj")
+sources/1 = SubResource("TileSetAtlasSource_pdsj5")
+sources/2 = SubResource("TileSetAtlasSource_ee4r6")
+sources/3 = SubResource("TileSetAtlasSource_gt3je")
+sources/4 = SubResource("TileSetAtlasSource_3pmx8")
+sources/5 = SubResource("TileSetAtlasSource_u50mg")
+sources/6 = SubResource("TileSetAtlasSource_cbgmd")
+sources/7 = SubResource("TileSetAtlasSource_1w6v2")
+
+[node name="Grid" type="Node2D" unique_id=1652481574]
+
+[node name="Camera2D" type="Camera2D" parent="." unique_id=970525613]
+zoom = Vector2(4, 4)
+
+[node name="TextureRect" type="TextureRect" parent="." unique_id=1876404261]
+offset_left = -1282.0
+offset_top = -730.0
+offset_right = 2085.0
+offset_bottom = 1481.0
+texture = ExtResource("1_8gbba")
+stretch_mode = 1
+
+[node name="Background" type="Sprite2D" parent="." unique_id=1101147727]
+position = Vector2(0, 8.000003)
+scale = Vector2(5.375, 10.125)
+texture = ExtResource("4_jjvhh")
+
+[node name="TileMapLayer" type="TileMapLayer" parent="." unique_id=70072132]
+tile_set = SubResource("TileSet_ueoa1")
+script = ExtResource("11_fevyy")
