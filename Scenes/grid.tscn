@@ -69,16 +69,16 @@ zoom = Vector2(4, 4)
 [node name="TextureRect" type="TextureRect" parent="." unique_id=1876404261]
 offset_left = -1282.0
 offset_top = -730.0
-offset_right = 2085.0
-offset_bottom = 1481.0
+offset_right = 95.0
+offset_bottom = 544.0
 texture = ExtResource("1_l1vk4")
 stretch_mode = 1
+
+[node name="TileMapLayer" type="TileMapLayer" parent="." unique_id=70072132]
+tile_set = SubResource("TileSet_ueoa1")
+script = ExtResource("11_knv4i")
 
 [node name="Background" type="Sprite2D" parent="." unique_id=1101147727]
 position = Vector2(0, 8.000003)
 scale = Vector2(5.375, 10.125)
 texture = ExtResource("2_l8f6v")
-
-[node name="TileMapLayer" type="TileMapLayer" parent="." unique_id=70072132]
-tile_set = SubResource("TileSet_ueoa1")
-script = ExtResource("11_knv4i")
