@@ -1,18 +1,36 @@
 extends TileMapLayer
 
+var score = 0
+var lines_cleared = 0
+var last_shape = null
+
+var das_delay = 0.2      # time before repeat starts
+var das_interval = 0.05  # time between repeated moves
+var das_timer = 0.0
+var das_direction = 0    # -1 for left, 1 for right
+var das_active = false
+
+var das_down_timer = 0.0
+var das_down_delay = 0.2
+var das_down_interval = 0.05
+
+var lock_timer = 0.0
+var lock_delay = 0.5  # seconds to allow movement after touching ground
+var locking = false
+
 func drawTheTetrisBorder():
 		for x in 10:
 			set_cell(Vector2i(-5+x,10), 7, Vector2i(2,0)) #bottom wall
-			set_cell(Vector2i(-5+x,-10), 7, Vector2i(2,0)) #top wall
-		for x in 20:
+			set_cell(Vector2i(-5+x,-11), 7, Vector2i(2,0)) #top wall
+		for x in 21:
 			set_cell(Vector2i(-6,10-x), 7, Vector2i(4,0)) #left wall
 			set_cell(Vector2i(5,10-x), 7, Vector2i(4,0))  #right wall
 
 #the corners
 		set_cell(Vector2i(-6,10), 7, Vector2i(0,1)) # bottom left
 		set_cell(Vector2i(5,10), 7, Vector2i(1,1)) # bottom right
-		set_cell(Vector2i(-6,-10), 7, Vector2i(0,0)) # top left
-		set_cell(Vector2i(5,-10), 7, Vector2i(1,0)) # top right
+		set_cell(Vector2i(-6,-11), 7, Vector2i(0,0)) # top left
+		set_cell(Vector2i(5,-11), 7, Vector2i(1,0)) # top right
 const emptyCellEquivalence = Vector2i(-1,-1)
 var gravTimer = 1
 
@@ -24,7 +42,7 @@ var shapeInstanceCount = 0
 var shapeBodyTracker: Dictionary[int, Array] = {
 }
 
-const iShape: Array[Vector2i] = [Vector2i(0,0), Vector2i(1,0), Vector2i(2,0)]
+const iShape: Array[Vector2i] = [Vector2i(0,0), Vector2i(1,0), Vector2i(2,0), Vector2i(3,0)]
 const oShape: Array[Vector2i] = [Vector2i(0,0), Vector2i(1,0), Vector2i(0,1), Vector2i(1,1)]
 const tShape: Array[Vector2i] = [Vector2i(0,0), Vector2i(1,0), Vector2i(2,0), Vector2i(1,1)]
 const jShape: Array[Vector2i] = [Vector2i(1,0), Vector2i(1,1), Vector2i(1,2), Vector2i(0,2)]
@@ -34,6 +52,8 @@ const zShape: Array[Vector2i] = [Vector2i(0,0), Vector2i(1,0), Vector2i(1,1), Ve
 const possibleShapes = [iShape, oShape, tShape, jShape, lShape, sShape, zShape]
 var once = 0
 
+
+var landed = false
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:
 	
@@ -42,20 +62,32 @@ func _process(delta: float) -> void:
 		once += 1
 	
 	
+	
+		
+
+	if !isGrounded():
+		landed = false
+		checkInputAndTranslatePiece(delta)
+		if Input.is_action_just_pressed("Rotate"):
+			rotatePiece()
+		if Input.is_action_just_pressed("Drop"):
+			hardDrop()
+	else:
+		checkInputAndTranslatePiece(delta)
+		if !landed:
+			landed = true
+			clearRows()
+			spawnAfterDelay(delta)
+			
 	if gravTimer > 0:
 		gravTimer -= delta
 	else:
-		gravTimer = 1
+		gravTimer = .5
 		applyGravity()
-	if !isGrounded():
-		checkInputAndTranslatePiece()
-	else:
-		pass
-		#await get_tree().create_timer(1.5).timeout
-		#spawnRandom()
 
-	
-
+func spawnAfterDelay(delta):
+	await get_tree().create_timer(.5).timeout
+	spawnRandom()
 	
 func makeTetromino(shape: Array, location: Vector2i, color: int = 5):
 	match shape:
@@ -83,20 +115,25 @@ func makeTetromino(shape: Array, location: Vector2i, color: int = 5):
 		shapeBodyTracker[shapeInstanceCount][n] = Vector2i(shape[n].x+location.x, shape[n].y+location.y)
 	shapeInstanceCount += 1
 func spawnRandom():
-	var randomX = randi_range(-5,2)
-	makeTetromino(possibleShapes.pick_random(), Vector2i(randomX,-9), randi_range(0,6))
-func applyGravity():
-	for n in shapeInstanceCount:
-		var unsafe = false
-		#print("----------------") #to distinguish different shapes in terminal
-		for i in shapeBodyTracker[n].size():
-			if (get_cell_atlas_coords(Vector2i(shapeBodyTracker[n][i].x, shapeBodyTracker[n][i].y+1)) != emptyCellEquivalence): #is cell below shape tiles != empty?
-				if not Vector2i(shapeBodyTracker[n][i].x, shapeBodyTracker[n][i].y+1) in shapeBodyTracker[n]: #and its not my own dang tile check????
-					#print("It's full with another shape's tile!! at cell below -> " + str(shapeBodyTracker[n][i]))
-					unsafe = true
-			else:
-				pass #print("the spots below the lowest tiles associated with the shape are empty!!")
-		if unsafe == false:
+	var randomX = randi_range(-5, 1)
+	var newShape = possibleShapes.pick_random()
+	while newShape == last_shape:
+		newShape = possibleShapes.pick_random()
+	last_shape = newShape
+	makeTetromino(newShape, Vector2i(randomX, -8), randi_range(0, 6))
+func applyGravity(): 
+	var n = shapeInstanceCount - 1
+	var unsafe = false
+	#print("----------------") #to distinguish different shapes in terminal
+	for i in shapeBodyTracker[n].size():
+		if (get_cell_atlas_coords(Vector2i(shapeBodyTracker[n][i].x, shapeBodyTracker[n][i].y+1)) != emptyCellEquivalence): #is cell below shape tiles != empty?
+			if not Vector2i(shapeBodyTracker[n][i].x, shapeBodyTracker[n][i].y+1) in shapeBodyTracker[n]: #and its not my own dang tile check????
+				#print("It's full with another shape's tile!! at cell below -> " + str(shapeBodyTracker[n][i]))
+				unsafe = true
+		else:
+			pass #print("the spots below the lowest tiles associated with the shape are empty!!")
+	if unsafe == false:
+		if shapeBodyTracker[n]:
 			var color = get_cell_source_id(shapeBodyTracker[n][0])
 			for vector in shapeBodyTracker[n].size():
 				erase_cell(shapeBodyTracker[n][vector])
@@ -104,33 +141,98 @@ func applyGravity():
 				set_cell(Vector2i(shapeBodyTracker[n][vector].x, shapeBodyTracker[n][vector].y+1), color, Vector2i(0,0))
 				shapeBodyTracker[n][vector].y += 1
 				#print(vector)
-func checkInputAndTranslatePiece():
+func checkInputAndTranslatePiece(delta: float):
 	if Input.is_action_just_pressed("Left"):
-		var unsafe = false
-		for cellNumber in shapeBodyTracker[shapeInstanceCount-1].size():
-			if get_cell_atlas_coords(Vector2i(shapeBodyTracker[shapeInstanceCount-1][cellNumber].x-1,shapeBodyTracker[shapeInstanceCount-1][cellNumber].y)) != emptyCellEquivalence:
-				if not Vector2i(shapeBodyTracker[shapeInstanceCount-1][cellNumber].x-1,shapeBodyTracker[shapeInstanceCount-1][cellNumber].y) in shapeBodyTracker[shapeInstanceCount-1]:
-					unsafe = true
+		translatePiece(-1)
+		das_direction = -1
+		das_timer = das_delay
+		das_active = false
+	elif Input.is_action_just_pressed("Right"):
+		translatePiece(1)
+		das_direction = 1
+		das_timer = das_delay
+		das_active = false
+
+	if Input.is_action_pressed("Left") or Input.is_action_pressed("Right"):
+		das_timer -= delta
+		if das_timer <= 0:
+			das_active = true
+			das_timer = das_interval
+			translatePiece(das_direction)
+	else:
+		das_timer = 0.0
+		das_active = false
+		
+	if Input.is_action_just_pressed("Down"):
+		softDrop()
+		das_down_timer = das_down_delay
+	elif Input.is_action_pressed("Down"):
+		das_down_timer -= delta
+		if das_down_timer <= 0:
+			das_down_timer = das_down_interval
+			softDrop()
+
+func translatePiece(dir: int):
+	var unsafe = false
+	for cellNumber in shapeBodyTracker[shapeInstanceCount-1].size():
+		if get_cell_atlas_coords(Vector2i(shapeBodyTracker[shapeInstanceCount-1][cellNumber].x+dir, shapeBodyTracker[shapeInstanceCount-1][cellNumber].y)) != emptyCellEquivalence:
+			if not Vector2i(shapeBodyTracker[shapeInstanceCount-1][cellNumber].x+dir, shapeBodyTracker[shapeInstanceCount-1][cellNumber].y) in shapeBodyTracker[shapeInstanceCount-1]:
+				unsafe = true
+	if !unsafe:
 		var color = get_cell_source_id(shapeBodyTracker[shapeInstanceCount-1][0])
-		if !unsafe:
-			for vector in shapeBodyTracker[shapeInstanceCount-1].size():
-				erase_cell(shapeBodyTracker[shapeInstanceCount-1][vector])
-			for vector in shapeBodyTracker[shapeInstanceCount-1].size():
-				set_cell(Vector2i(shapeBodyTracker[shapeInstanceCount-1][vector].x-1, shapeBodyTracker[shapeInstanceCount-1][vector].y), color, Vector2i(0,0))
-				shapeBodyTracker[shapeInstanceCount-1][vector].x -= 1
-	if Input.is_action_just_pressed("Right"):
-		var unsafe = false
-		for cellNumber in shapeBodyTracker[shapeInstanceCount-1].size():
-			if get_cell_atlas_coords(Vector2i(shapeBodyTracker[shapeInstanceCount-1][cellNumber].x+1,shapeBodyTracker[shapeInstanceCount-1][cellNumber].y)) != emptyCellEquivalence:
-				if not Vector2i(shapeBodyTracker[shapeInstanceCount-1][cellNumber].x+1,shapeBodyTracker[shapeInstanceCount-1][cellNumber].y) in shapeBodyTracker[shapeInstanceCount-1]:
-					unsafe = true
+		for vector in shapeBodyTracker[shapeInstanceCount-1].size():
+			erase_cell(shapeBodyTracker[shapeInstanceCount-1][vector])
+		for vector in shapeBodyTracker[shapeInstanceCount-1].size():
+			set_cell(Vector2i(shapeBodyTracker[shapeInstanceCount-1][vector].x+dir, shapeBodyTracker[shapeInstanceCount-1][vector].y), color, Vector2i(0,0))
+			shapeBodyTracker[shapeInstanceCount-1][vector].x += dir
+func rotatePiece():
+	var piece = shapeBodyTracker[shapeInstanceCount - 1]
+	
+	# Skip rotation for O shape (2x2 square)
+	if piece.size() == 4:
+		var xs = []
+		for c in piece:
+			xs.append(c.x)
+		var ys = []
+		for c in piece:
+			ys.append(c.y)
+		if xs.max() - xs.min() == 1 and ys.max() - ys.min() == 1:
+			return
+	
+	# Find the pivot (center cell of the active piece)
+	var pivot = piece[1]
+	
+	var rotated = []
+	for cell in piece:
+		var relative = cell - pivot
+		var newRelative = Vector2i(-relative.y, relative.x)
+		rotated.append(pivot + newRelative)
+	
+	# Check if any rotated position is blocked
+	for cell in rotated:
+		if get_cell_atlas_coords(cell) != emptyCellEquivalence:
+			if cell not in piece:
+				return # Blocked, cancel rotation
+	
+	# Apply rotation
+	var color = get_cell_source_id(piece[0])
+	for cell in piece:
+		erase_cell(cell)
+	for i in piece.size():
+		set_cell(rotated[i], color, Vector2i(0, 0))
+		shapeBodyTracker[shapeInstanceCount - 1][i] = rotated[i]
+
+func softDrop():
+	gravTimer = 0.0
+func hardDrop():
+	while !isGrounded():
 		var color = get_cell_source_id(shapeBodyTracker[shapeInstanceCount-1][0])
-		if !unsafe:
-			for vector in shapeBodyTracker[shapeInstanceCount-1].size():
-				erase_cell(shapeBodyTracker[shapeInstanceCount-1][vector])
-			for vector in shapeBodyTracker[shapeInstanceCount-1].size():
-				set_cell(Vector2i(shapeBodyTracker[shapeInstanceCount-1][vector].x+1, shapeBodyTracker[shapeInstanceCount-1][vector].y), color, Vector2i(0,0))
-				shapeBodyTracker[shapeInstanceCount-1][vector].x += 1
+		for vector in shapeBodyTracker[shapeInstanceCount-1].size():
+			erase_cell(shapeBodyTracker[shapeInstanceCount-1][vector])
+		for vector in shapeBodyTracker[shapeInstanceCount-1].size():
+			set_cell(Vector2i(shapeBodyTracker[shapeInstanceCount-1][vector].x, shapeBodyTracker[shapeInstanceCount-1][vector].y+1), color, Vector2i(0,0))
+			shapeBodyTracker[shapeInstanceCount-1][vector].y += 1
+
 func isGrounded() -> bool:
 	for i in shapeBodyTracker[shapeInstanceCount - 1].size():
 		var below = Vector2i(
@@ -143,3 +245,61 @@ func isGrounded() -> bool:
 				return true
 
 	return false
+
+func clearRows():
+	var rows_cleared_this_turn = 0
+	var row = 9
+	while row >= -10:
+		var full = true
+		for col in range(-5, 5):
+			if get_cell_atlas_coords(Vector2i(col, row)) == emptyCellEquivalence:
+				full = false
+				break
+		
+		if full:
+			rows_cleared_this_turn += 1
+
+			# flash tile 9 across the row
+			for col in range(-5, 5):
+				set_cell(Vector2i(col, row), 9, Vector2i(0, 0))
+			
+			await get_tree().create_timer(0.3).timeout
+
+			# cache all colors before touching anything
+			var colorCache: Dictionary = {}
+			for n in shapeBodyTracker:
+				for cell in shapeBodyTracker[n]:
+					colorCache[cell] = get_cell_source_id(cell)
+
+			# erase the full row
+			for col in range(-5, 5):
+				erase_cell(Vector2i(col, row))
+
+			# erase all cells above the cleared row
+			for n in shapeBodyTracker:
+				for cell in shapeBodyTracker[n]:
+					if cell.y < row:
+						erase_cell(cell)
+
+			# rebuild tracker and redraw
+			for n in shapeBodyTracker:
+				var newCells = []
+				for cell in shapeBodyTracker[n]:
+					if cell.y == row:
+						pass
+					elif cell.y < row:
+						set_cell(Vector2i(cell.x, cell.y + 1), colorCache[cell], Vector2i(0, 0))
+						newCells.append(Vector2i(cell.x, cell.y + 1))
+					else:
+						newCells.append(cell)
+				shapeBodyTracker[n] = newCells
+		else:
+			row -= 1
+
+	match rows_cleared_this_turn:
+		1: score += 100
+		2: score += 300
+		3: score += 500
+		4: score += 800
+	lines_cleared += rows_cleared_this_turn
+	print("Score: ", score, " | Lines: ", lines_cleared)
