@@ -36,6 +36,7 @@ var once = 0
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:
+	
 	if once == 0:
 		spawnRandom()
 		once += 1
@@ -46,11 +47,12 @@ func _process(delta: float) -> void:
 	else:
 		gravTimer = 1
 		applyGravity()
-	if 0 == isGrounded():
+	if !isGrounded():
 		checkInputAndTranslatePiece()
 	else:
-		await get_tree().create_timer(1.5).timeout
-		spawnRandom()
+		pass
+		#await get_tree().create_timer(1.5).timeout
+		#spawnRandom()
 
 	
 
@@ -129,17 +131,15 @@ func checkInputAndTranslatePiece():
 			for vector in shapeBodyTracker[shapeInstanceCount-1].size():
 				set_cell(Vector2i(shapeBodyTracker[shapeInstanceCount-1][vector].x+1, shapeBodyTracker[shapeInstanceCount-1][vector].y), color, Vector2i(0,0))
 				shapeBodyTracker[shapeInstanceCount-1][vector].x += 1
-func isGrounded() -> float:
-		var smthBelow: float = 0
-		#print("----------------") #to distinguish different shapes in terminal
-		for i in shapeBodyTracker[shapeInstanceCount-1].size():
-			if (get_cell_atlas_coords(Vector2i(shapeBodyTracker[shapeInstanceCount-1][i].x, shapeBodyTracker[shapeInstanceCount-1][i].y+1)) != emptyCellEquivalence): #is cell below shape tiles != empty?
-				if not Vector2i(shapeBodyTracker[shapeInstanceCount-1][i].x, shapeBodyTracker[shapeInstanceCount-1][i].y+1) in shapeBodyTracker[shapeInstanceCount-1]: #and its not my own dang tile check????
-					#print("It's full with another shape's tile!! at cell below -> " + str(shapeBodyTracker[shapeInstanceCount-1][i]))
-					smthBelow = true
-				else:
-					pass#print("the spots below the lowest tiles associated with the shape are empty!!")
-		if smthBelow:
-				return 1
-		else:
-				return 0
+func isGrounded() -> bool:
+	for i in shapeBodyTracker[shapeInstanceCount - 1].size():
+		var below = Vector2i(
+			shapeBodyTracker[shapeInstanceCount - 1][i].x,
+			shapeBodyTracker[shapeInstanceCount - 1][i].y + 1
+		)
+
+		if get_cell_atlas_coords(below) != emptyCellEquivalence:
+			if below not in shapeBodyTracker[shapeInstanceCount - 1]:
+				return true
+
+	return false

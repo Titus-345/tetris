@@ -11,6 +11,7 @@
 [ext_resource type="Texture2D" uid="uid://bgx100w1xp761" path="res://Tetris_Asset_Pack/blocks/yellowCut.png" id="9_h1bgf"]
 [ext_resource type="Texture2D" uid="uid://b5vumpjkxp2rd" path="res://Tetris_Asset_Pack/UI/tilemap/tilemap_border.png" id="10_b3802"]
 [ext_resource type="Script" uid="uid://cc1sostm7n1ye" path="res://Scripts/tile_map_layer.gd" id="11_fevyy"]
+[ext_resource type="Script" uid="uid://bw0akfrqvkw0h" path="res://Scripts/label.gd" id="12_6iyac"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_hibaj"]
 texture = ExtResource("3_d1ilt")
@@ -82,3 +83,10 @@ texture = ExtResource("4_jjvhh")
 [node name="TileMapLayer" type="TileMapLayer" parent="." unique_id=70072132]
 tile_set = SubResource("TileSet_ueoa1")
 script = ExtResource("11_fevyy")
+
+[node name="Label" type="Label" parent="." unique_id=561981521]
+offset_left = -73.0
+offset_top = -129.0
+offset_right = -33.0
+offset_bottom = -106.0
+script = ExtResource("12_6iyac")
