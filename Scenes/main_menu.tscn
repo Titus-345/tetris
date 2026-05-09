@@ -1,0 +1,39 @@
+[gd_scene format=3 uid="uid://bi3c8y6o1gnf4"]
+
+[ext_resource type="Script" uid="uid://do7wpeoenxbm5" path="res://Scripts/main_menu.gd" id="1_48xlc"]
+
+[node name="MainMenu" type="Node2D" unique_id=678625238]
+script = ExtResource("1_48xlc")
+
+[node name="Background" type="ColorRect" parent="." unique_id=1331283333]
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="CenterPanel" type="CenterContainer" parent="." unique_id=2014694463]
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="VBoxContainer" type="VBoxContainer" parent="CenterPanel" unique_id=1705232039]
+layout_mode = 2
+
+[node name="TitleLabel" type="Label" parent="CenterPanel/VBoxContainer" unique_id=813546885]
+layout_mode = 2
+
+[node name="Spacer" type="Control" parent="CenterPanel/VBoxContainer" unique_id=833073476]
+layout_mode = 2
+
+[node name="PlayButton" type="Button" parent="CenterPanel/VBoxContainer" unique_id=1914703889]
+layout_mode = 2
+
+[node name="HighScoresButton" type="Button" parent="CenterPanel/VBoxContainer" unique_id=872166659]
+layout_mode = 2
+
+[node name="SettingsButton" type="Button" parent="CenterPanel/VBoxContainer" unique_id=515720152]
+layout_mode = 2
+
+[node name="QuitButton" type="Button" parent="CenterPanel/VBoxContainer" unique_id=841646398]
+layout_mode = 2
+
+[node name="VersionLabel" type="Label" parent="." unique_id=203549970]
+offset_right = 40.0
+offset_bottom = 23.0

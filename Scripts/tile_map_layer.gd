@@ -1,5 +1,6 @@
 extends TileMapLayer
-
+@onready var increaseAnnouncement = $"../IncreaseLabel"
+const HighScores = preload("res://Scripts/high_scores.gd")
 var score = 0
 var lines_cleared = 0
 var last_shape = null
@@ -33,6 +34,7 @@ func drawTheTetrisBorder():
 		set_cell(Vector2i(5,-11), 7, Vector2i(1,0)) # top right
 const emptyCellEquivalence = Vector2i(-1,-1)
 var gravTimer = 1
+var gravTimerStart = .75
 
 func _ready() -> void:
 	#DRAW THE BORDER OF THE GAME
@@ -52,41 +54,77 @@ const zShape: Array[Vector2i] = [Vector2i(0,0), Vector2i(1,0), Vector2i(1,1), Ve
 const possibleShapes = [iShape, oShape, tShape, jShape, lShape, sShape, zShape]
 var once = 0
 
+func flash_announcement():
+	var tween = create_tween()
+	tween.tween_property(increaseAnnouncement, "modulate:a", 1.0, 0.15)
+	tween.tween_interval(1.0)
+	tween.tween_property(increaseAnnouncement, "modulate:a", 0.0, 0.5)
 
 var landed = false
 # Called every frame. 'delta' is the elapsed time since the previous frame.
+var last_grav_timer_start = gravTimerStart
+
+
 func _process(delta: float) -> void:
+	if shapeInstanceCount != 0:
+		var topped_out = shapeBodyTracker[shapeInstanceCount-1][0].y < -8 and isGrounded()
+		print(str(topped_out))
+		if score > 1000000 or topped_out: 
+			HighScores.save_score(score, lines_cleared)
+			get_tree().change_scene_to_file("res://Scenes/HighScores.tscn")
 	
+	var new_grav = gravTimerStart
+
+	if score > 2000:
+		new_grav = .15
+	elif score > 1600:
+		new_grav = .3
+	elif score > 1400:
+		new_grav = .4
+	elif score > 1000:
+		new_grav = .45
+	elif score > 500:
+		new_grav = .55
+	elif score > 200:
+		new_grav = .6
+
+	if new_grav != last_grav_timer_start:
+		last_grav_timer_start = new_grav
+		gravTimerStart = new_grav
+		flash_announcement()
+
 	if once == 0:
 		spawnRandom()
 		once += 1
-	
-	
-	
-		
 
-	if !isGrounded():
-		landed = false
-		checkInputAndTranslatePiece(delta)
-		if Input.is_action_just_pressed("Rotate"):
-			rotatePiece()
-		if Input.is_action_just_pressed("Drop"):
-			hardDrop()
+	if Input.is_action_just_pressed("Rotate"):
+		rotatePiece()
+	if Input.is_action_just_pressed("Drop"):
+		hardDrop()
+
+	checkInputAndTranslatePiece(delta)
+
+	if isGrounded():
+		if not locking:
+			locking = true
+			lock_timer = lock_delay
+		else:
+			lock_timer -= delta
+			if lock_timer <= 0:
+				locking = false
+				clearRows()
+				spawnRandom()
 	else:
-		checkInputAndTranslatePiece(delta)
-		if !landed:
-			landed = true
-			clearRows()
-			spawnAfterDelay(delta)
-			
+		locking = false
+
 	if gravTimer > 0:
 		gravTimer -= delta
 	else:
-		gravTimer = .5
+		gravTimer = gravTimerStart
 		applyGravity()
 
 func spawnAfterDelay(delta):
-	await get_tree().create_timer(.5).timeout
+	await get_tree().create_timer(gravTimerStart+.2).timeout
 	spawnRandom()
 	
 func makeTetromino(shape: Array, location: Vector2i, color: int = 5):
@@ -120,7 +158,7 @@ func spawnRandom():
 	while newShape == last_shape:
 		newShape = possibleShapes.pick_random()
 	last_shape = newShape
-	makeTetromino(newShape, Vector2i(randomX, -8), randi_range(0, 6))
+	makeTetromino(newShape, Vector2i(randomX, -9), randi_range(0, 6))
 func applyGravity(): 
 	var n = shapeInstanceCount - 1
 	var unsafe = false
@@ -259,7 +297,7 @@ func clearRows():
 		if full:
 			rows_cleared_this_turn += 1
 
-			# flash tile 9 across the row
+			# flash white tile across the row
 			for col in range(-5, 5):
 				set_cell(Vector2i(col, row), 9, Vector2i(0, 0))
 			
@@ -302,4 +340,3 @@ func clearRows():
 		3: score += 500
 		4: score += 800
 	lines_cleared += rows_cleared_this_turn
-	print("Score: ", score, " | Lines: ", lines_cleared)

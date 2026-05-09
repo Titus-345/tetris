@@ -13,8 +13,8 @@
 [ext_resource type="Texture2D" uid="uid://coekvpsn28gpc" path="res://Tetris_Asset_Pack/blocks/monochromeCut.png" id="11_1phco"]
 [ext_resource type="Script" uid="uid://cc1sostm7n1ye" path="res://Scripts/tile_map_layer.gd" id="11_mg4q0"]
 [ext_resource type="Script" uid="uid://54n2npkouefl" path="res://Scripts/node_2d.gd" id="12_vm72l"]
-[ext_resource type="Script" uid="uid://bw0akfrqvkw0h" path="res://Scripts/label.gd" id="13_22asu"]
 [ext_resource type="FontFile" uid="uid://7hitc5jyuv8b" path="res://nintendo-nes-font.ttf" id="14_nb51f"]
+[ext_resource type="Script" uid="uid://wemvh0x6nqu7" path="res://Scripts/score_label.gd" id="15_nb51f"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_hibaj"]
 texture = ExtResource("3_nb51f")
@@ -72,10 +72,6 @@ sources/9 = SubResource("TileSetAtlasSource_nb51f")
 
 [sub_resource type="LabelSettings" id="LabelSettings_nnt18"]
 font = ExtResource("14_nb51f")
-font_size = 18
-font_color = Color(0, 0, 0, 1)
-outline_size = 1
-outline_color = Color(0, 0, 0, 1)
 
 [node name="Grid" type="Node2D" unique_id=1652481574]
 
@@ -102,13 +98,26 @@ script = ExtResource("11_mg4q0")
 [node name="Node2D" type="Node2D" parent="TileMapLayer" unique_id=1745664296]
 script = ExtResource("12_vm72l")
 
-[node name="Label" type="Label" parent="." unique_id=561981521]
-texture_filter = 1
-offset_left = -220.0
+[node name="IncreaseLabel" type="Label" parent="." unique_id=1415954681]
+modulate = Color(1, 1, 1, 0)
+offset_left = -80.0
+offset_top = -40.0
+offset_right = 80.0
+offset_bottom = 40.0
+text = "SPEED
+ INCREASED"
+label_settings = SubResource("LabelSettings_nnt18")
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="ScoreLabel" type="Label" parent="." unique_id=1730189358]
+offset_left = -250.0
 offset_top = -161.0
-offset_right = -76.0
-offset_bottom = -120.0
-text = "Score:
+offset_right = -90.0
+offset_bottom = -81.0
+text = "SCORE:
 0"
 label_settings = SubResource("LabelSettings_nnt18")
-script = ExtResource("13_22asu")
+horizontal_alignment = 1
+vertical_alignment = 1
+script = ExtResource("15_nb51f")
