@@ -15,6 +15,7 @@ func _ready():
 	_screen = get_viewport_rect().size
 	_build_ui()
 	_animate_title()
+	DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN)
 
 func _build_ui():
 	var bg = ColorRect.new()

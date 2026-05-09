@@ -15,6 +15,7 @@
 [ext_resource type="Script" uid="uid://54n2npkouefl" path="res://Scripts/node_2d.gd" id="12_vm72l"]
 [ext_resource type="FontFile" uid="uid://7hitc5jyuv8b" path="res://nintendo-nes-font.ttf" id="14_nb51f"]
 [ext_resource type="Script" uid="uid://wemvh0x6nqu7" path="res://Scripts/score_label.gd" id="15_nb51f"]
+[ext_resource type="Script" uid="uid://dufuvahnbq6qu" path="res://Scripts/quit_button.gd" id="16_nnt18"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_hibaj"]
 texture = ExtResource("3_nb51f")
@@ -79,8 +80,8 @@ font = ExtResource("14_nb51f")
 zoom = Vector2(1.8, 1.8)
 
 [node name="TextureRect" type="TextureRect" parent="." unique_id=1876404261]
-offset_left = -1282.0
-offset_top = -730.0
+offset_left = -1853.0
+offset_top = -1362.0
 offset_right = 2085.0
 offset_bottom = 1481.0
 texture = ExtResource("1_rfjv2")
@@ -121,3 +122,6 @@ label_settings = SubResource("LabelSettings_nnt18")
 horizontal_alignment = 1
 vertical_alignment = 1
 script = ExtResource("15_nb51f")
+
+[node name="quitButton" type="Node2D" parent="." unique_id=461689132]
+script = ExtResource("16_nnt18")
