@@ -1,6 +1,6 @@
 extends AudioStreamPlayer2D
 
-var musicTrack
+var musicTrack: AudioStream
 
 func _play_music(music: AudioStream, volume = 0.0):
 	if stream == music:
