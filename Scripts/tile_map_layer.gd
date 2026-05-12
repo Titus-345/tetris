@@ -37,10 +37,12 @@ var gravTimer = 1
 var gravTimerStart = .75
 
 func _ready() -> void:
+	MyAudioPlayer.musicTrack = preload("res://Tetris_Asset_Pack/music/Type B.mp3")
+
 	#DRAW THE BORDER OF THE GAME
 	drawTheTetrisBorder()
-	
 var shapeInstanceCount = 0
+
 var shapeBodyTracker: Dictionary[int, Array] = {
 }
 

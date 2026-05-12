@@ -12,6 +12,8 @@ var _title_tween: Tween
 var _vbox: VBoxContainer
 
 func _ready():
+	MyAudioPlayer.musicTrack = preload("res://Tetris_Asset_Pack/music/Main Menu.mp3")
+	MyAudioPlayer.play_music_level()
 	_screen = get_viewport_rect().size
 	_build_ui()
 	_animate_title()
