@@ -37,7 +37,9 @@ var gravTimer = 1
 var gravTimerStart = .75
 
 func _ready() -> void:
-	MyAudioPlayer.musicTrack = preload("res://Tetris_Asset_Pack/music/Type B.mp3")
+	MyAudioPlayer.stop()
+	MyAudioPlayer.stream = preload("res://Tetris_Asset_Pack/music/Type B.mp3")
+	MyAudioPlayer.play()
 
 	#DRAW THE BORDER OF THE GAME
 	drawTheTetrisBorder()
